@@ -1,0 +1,6 @@
+@OrbitPay.Authorization_HostAddress = http://localhost:5194
+
+GET {{OrbitPay.Authorization_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
