@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "OrbitPay.AppHost/OrbitPay.AppHost.csproj"
+  }
+}

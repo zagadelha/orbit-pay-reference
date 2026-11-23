@@ -1,0 +1,30 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.0.0
+MinimumVisualStudioVersion = 17.8.0.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrbitPay.AppHost", "OrbitPay.AppHost\OrbitPay.AppHost.csproj", "{132822FF-3C8F-479C-B6C0-EA7027A14AB5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrbitPay.ServiceDefaults", "OrbitPay.ServiceDefaults\OrbitPay.ServiceDefaults.csproj", "{E86502BC-C0E7-4F6C-86D8-2BF7252B5E94}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{132822FF-3C8F-479C-B6C0-EA7027A14AB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{132822FF-3C8F-479C-B6C0-EA7027A14AB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{132822FF-3C8F-479C-B6C0-EA7027A14AB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{132822FF-3C8F-479C-B6C0-EA7027A14AB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E86502BC-C0E7-4F6C-86D8-2BF7252B5E94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E86502BC-C0E7-4F6C-86D8-2BF7252B5E94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E86502BC-C0E7-4F6C-86D8-2BF7252B5E94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E86502BC-C0E7-4F6C-86D8-2BF7252B5E94}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {889A3BC2-9A00-4153-A0AE-0CE5BA9D9EEC}
+	EndGlobalSection
+EndGlobal
