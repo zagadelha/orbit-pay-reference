@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-OrbitPay.OutboxRelay-feedb27a-c3dc-4a65-92e9-282912158f38</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Confluent.Kafka" Version="17.0.0" />
+    <PackageReference Include="Aspire.Microsoft.Data.SqlClient" Version="17.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.100" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\OrbitPay.ServiceDefaults\OrbitPay.ServiceDefaults.csproj" />
+  </ItemGroup>
+</Project>

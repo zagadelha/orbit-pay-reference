@@ -20,4 +20,10 @@ builder.AddDotnetProject("authorization", "../src/services/authorization/OrbitPa
        .WaitFor(sql)
        .WaitFor(kafka);
 
+builder.AddDotnetProject("outbox-relay", "../src/services/outbox-relay/OrbitPay.OutboxRelay.csproj")
+       .WithReference(sql)
+       .WithReference(kafka)
+       .WaitForCompletion(migrations)
+       .WaitFor(kafka);
+
 builder.Build().Run();
