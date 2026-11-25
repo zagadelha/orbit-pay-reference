@@ -1,0 +1,42 @@
+@base = https://localhost:7272
+
+### 1. Aprovação (conta 1: 1000 → 900)
+POST {{base}}/v1/authorizations
+Content-Type: application/json
+Idempotency-Key: teste-001
+
+{ "cardToken": "tok_demo_0001", "amount": 100.00, "currency": "EUR", "merchantId": "m_0001", "mcc": "5411" }
+
+### 2. Mesma chave, mesmo corpo → deve devolver o MESMO authorizationId
+POST {{base}}/v1/authorizations
+Content-Type: application/json
+Idempotency-Key: teste-001
+
+{ "cardToken": "tok_demo_0001", "amount": 100.00, "currency": "EUR", "merchantId": "m_0001", "mcc": "5411" }
+
+### 3. Mesma chave, corpo diferente → 422
+POST {{base}}/v1/authorizations
+Content-Type: application/json
+Idempotency-Key: teste-001
+
+{ "cardToken": "tok_demo_0001", "amount": 999.00, "currency": "EUR", "merchantId": "m_0001", "mcc": "5411" }
+
+### 4. Cartão adicional dividindo o limite: 950 > 900 disponíveis → INSUFFICIENT_FUNDS
+POST {{base}}/v1/authorizations
+Content-Type: application/json
+Idempotency-Key: teste-002
+
+{ "cardToken": "tok_demo_0002", "amount": 950.00, "currency": "EUR", "merchantId": "m_0002", "mcc": "5541" }
+
+### 5. Cartão bloqueado → CARD_BLOCKED
+POST {{base}}/v1/authorizations
+Content-Type: application/json
+Idempotency-Key: teste-003
+
+{ "cardToken": "tok_demo_0004", "amount": 10.00, "currency": "EUR", "merchantId": "m_0003", "mcc": "5812" }
+
+### 6. Sem Idempotency-Key → 400
+POST {{base}}/v1/authorizations
+Content-Type: application/json
+
+{ "cardToken": "tok_demo_0001", "amount": 10.00, "currency": "EUR", "merchantId": "m_0001", "mcc": "5411" }
