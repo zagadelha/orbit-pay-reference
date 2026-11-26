@@ -13,12 +13,16 @@ var migrations = builder.AddDotnetProject("migrations", "../src/migrations/Orbit
                         .WithReference(sql)
                         .WaitFor(sql);
 
+var networkSim = builder.AddDotnetProject("network-sim", "../src/simulators/network-sim/OrbitPay.NetworkSim.csproj");
+
 builder.AddDotnetProject("authorization", "../src/services/authorization/OrbitPay.Authorization.csproj")
        .WithReference(sql)
        .WithReference(redis)
        .WithReference(kafka)
-       .WaitFor(sql)
-       .WaitFor(kafka);
+       .WithReference(networkSim)
+       .WaitForCompletion(migrations)
+       .WaitFor(kafka)
+       .WaitFor(networkSim);
 
 builder.AddDotnetProject("outbox-relay", "../src/services/outbox-relay/OrbitPay.OutboxRelay.csproj")
        .WithReference(sql)

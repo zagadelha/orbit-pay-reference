@@ -3,7 +3,7 @@
 ### 1. Aprovação (conta 1: 1000 → 900)
 POST {{base}}/v1/authorizations
 Content-Type: application/json
-Idempotency-Key: teste-001
+Idempotency-Key: teste-021
 
 { "cardToken": "tok_demo_0001", "amount": 100.00, "currency": "EUR", "merchantId": "m_0001", "mcc": "5411" }
 
@@ -40,3 +40,20 @@ POST {{base}}/v1/authorizations
 Content-Type: application/json
 
 { "cardToken": "tok_demo_0001", "amount": 10.00, "currency": "EUR", "merchantId": "m_0001", "mcc": "5411" }
+
+@sim = https://localhost:7103
+
+### Estado atual do simulador
+GET {{sim}}/admin/faults
+
+### Rede lenta: 2 s de latência
+POST {{sim}}/admin/faults
+Content-Type: application/json
+
+{ "latencyMs": 2000, "errorRate": 0 }
+
+### Rede normal
+POST {{sim}}/admin/faults
+Content-Type: application/json
+
+{ "latencyMs": 40, "errorRate": 0 }

@@ -5,11 +5,19 @@ using System.Text;
 using System.Text.Json;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics.Metrics;
 
 namespace OrbitPay.Authorization;
 
-public sealed class AuthorizationHandler(SqlConnection connection)
+public sealed class AuthorizationHandler(SqlConnection connection, NetworkClient network)
 {
+      public const string TelemetryName = "OrbitPay.Authorization";
+    private const decimal StandInLimit = 50m;
+
+    private static readonly Meter Meter = new(TelemetryName);
+    private static readonly Counter<long> Authorizations = Meter.CreateCounter<long>("orbit.authorizations");
+    private static readonly Counter<long> StandInApprovals = Meter.CreateCounter<long>("orbit.stip.approvals");
+    
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     public async Task<IResult> HandleAsync(string idempotencyKey, AuthorizationRequest request, CancellationToken ct)
@@ -44,6 +52,7 @@ public sealed class AuthorizationHandler(SqlConnection connection)
 
         string status;
         string? declineReason = null;
+        var standIn = false;
         var accountId = card?.AccountId ?? 0;
 
         if (card is null)
@@ -56,27 +65,43 @@ public sealed class AuthorizationHandler(SqlConnection connection)
         }
         else
         {
-            // 3. Débito condicional e atômico: nunca ler e depois atualizar.
-            var rows = await connection.ExecuteAsync(new CommandDefinition(
-                """
-                UPDATE accounts
-                   SET available = available - @Amount, updated_at = SYSUTCDATETIME()
-                 WHERE account_id = @AccountId AND available >= @Amount
-                """,
-                new { request.Amount, AccountId = accountId }, tx, cancellationToken: ct));
+            var decision = await network.AuthorizeAsync(idempotencyKey, request, ct);
 
-            (status, declineReason) = rows == 1 ? ("APPROVED", null) : ("DECLINED", "INSUFFICIENT_FUNDS");
+            if (decision == NetworkDecision.Declined)
+            {
+                status = "DECLINED"; declineReason = "NETWORK_DECLINED";
+            }
+            else if (decision == NetworkDecision.Unavailable && request.Amount >= StandInLimit)
+            {
+                status = "DECLINED"; declineReason = "NETWORK_UNAVAILABLE";
+            }
+            else
+            {
+                // Aprovada pela rede, ou pelo STIP quando a rede está fora e o valor é baixo
+                standIn = decision == NetworkDecision.Unavailable;
+
+                var rows = await connection.ExecuteAsync(new CommandDefinition(
+                    """
+                    UPDATE accounts
+                       SET available = available - @Amount, updated_at = SYSUTCDATETIME()
+                     WHERE account_id = @AccountId AND available >= @Amount
+                    """,
+                    new { request.Amount, AccountId = accountId }, tx, cancellationToken: ct));
+
+                (status, declineReason) = rows == 1 ? ("APPROVED", null) : ("DECLINED", "INSUFFICIENT_FUNDS");
+                if (status == "DECLINED") standIn = false;
+            }
         }
 
         // 4. Registro da autorização (aprovadas e recusadas)
         var auth = await connection.QuerySingleAsync<AuthRow>(new CommandDefinition(
             """
-            INSERT INTO authorizations (card_token, account_id, amount, currency, merchant_id, mcc, status, decline_reason)
+            INSERT INTO authorizations (card_token, account_id, amount, currency, merchant_id, mcc, status, decline_reason, stand_in)
             OUTPUT INSERTED.authorization_id AS AuthorizationId, INSERTED.created_at AS CreatedAt
-            VALUES (@CardToken, @AccountId, @Amount, @Currency, @MerchantId, @Mcc, @Status, @DeclineReason)
+            VALUES (@CardToken, @AccountId, @Amount, @Currency, @MerchantId, @Mcc, @Status, @DeclineReason, @StandIn)
             """,
             new { request.CardToken, AccountId = accountId, request.Amount, request.Currency,
-                  request.MerchantId, request.Mcc, Status = status, DeclineReason = declineReason },
+                  request.MerchantId, request.Mcc, Status = status, DeclineReason = declineReason, StandIn = standIn },
             tx, cancellationToken: ct));
 
         var response = new AuthorizationResponse(auth.AuthorizationId, status, declineReason,
@@ -113,6 +138,10 @@ public sealed class AuthorizationHandler(SqlConnection connection)
         await connection.ExecuteAsync(new CommandDefinition(
             "UPDATE idempotency_keys SET status_code = 200, response_body = @Body WHERE idempotency_key = @Key",
             new { Body = responseJson, Key = idempotencyKey }, tx, cancellationToken: ct));
+
+        Authorizations.Add(1, new KeyValuePair<string, object?>("result", status),
+                              new KeyValuePair<string, object?>("reason", declineReason ?? "none"));
+        if (standIn) StandInApprovals.Add(1);
 
         await tx.CommitAsync(ct);
         return Results.Text(responseJson, "application/json", Encoding.UTF8, StatusCodes.Status200OK);
