@@ -29,6 +29,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "network-sim", "network-sim"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrbitPay.NetworkSim", "src\simulators\network-sim\OrbitPay.NetworkSim.csproj", "{9CA75103-66F7-4674-A1E9-CD7344C9AD53}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrbitPay.Authorization.IntegrationTests", "tests\OrbitPay.Authorization.IntegrationTests\OrbitPay.Authorization.IntegrationTests.csproj", "{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +115,18 @@ Global
 		{9CA75103-66F7-4674-A1E9-CD7344C9AD53}.Release|x64.Build.0 = Release|Any CPU
 		{9CA75103-66F7-4674-A1E9-CD7344C9AD53}.Release|x86.ActiveCfg = Release|Any CPU
 		{9CA75103-66F7-4674-A1E9-CD7344C9AD53}.Release|x86.Build.0 = Release|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Debug|x64.Build.0 = Debug|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Debug|x86.Build.0 = Debug|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Release|x64.ActiveCfg = Release|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Release|x64.Build.0 = Release|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Release|x86.ActiveCfg = Release|Any CPU
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +142,7 @@ Global
 		{3C6691E8-081E-D8F5-5181-428471EC9255} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{FBC093B6-3808-C2E0-852B-96B61785C5EA} = {3C6691E8-081E-D8F5-5181-428471EC9255}
 		{9CA75103-66F7-4674-A1E9-CD7344C9AD53} = {FBC093B6-3808-C2E0-852B-96B61785C5EA}
+		{6EC1B07B-7B06-4C3D-8AD4-171D17702FE6} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {889A3BC2-9A00-4153-A0AE-0CE5BA9D9EEC}

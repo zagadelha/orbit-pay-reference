@@ -37,7 +37,7 @@ public sealed class AuthorizationHandler(SqlConnection connection, NetworkClient
                 INSERT INTO idempotency_keys (idempotency_key, request_hash, expires_at)
                 VALUES (@Key, @Hash, DATEADD(HOUR, 24, SYSUTCDATETIME()))
                 """,
-                new { Key = idempotencyKey, Hash = requestHash }, tx, cancellationToken: ct));
+                new { Key = Ansi(idempotencyKey, 100), Hash = requestHash }, tx, cancellationToken: ct));
         }
         catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
@@ -48,7 +48,7 @@ public sealed class AuthorizationHandler(SqlConnection connection, NetworkClient
         // 2. Cartão e conta
         var card = await connection.QuerySingleOrDefaultAsync<CardRow>(new CommandDefinition(
             "SELECT account_id AS AccountId, status AS Status FROM cards WHERE card_token = @CardToken",
-            new { request.CardToken }, tx, cancellationToken: ct));
+            new { CardToken = Ansi(request.CardToken, 40) }, tx, cancellationToken: ct));
 
         string status;
         string? declineReason = null;
@@ -137,7 +137,7 @@ public sealed class AuthorizationHandler(SqlConnection connection, NetworkClient
         // 6. Guarda a resposta para reenvios com a mesma chave
         await connection.ExecuteAsync(new CommandDefinition(
             "UPDATE idempotency_keys SET status_code = 200, response_body = @Body WHERE idempotency_key = @Key",
-            new { Body = responseJson, Key = idempotencyKey }, tx, cancellationToken: ct));
+            new { Body = responseJson, Key = Ansi(idempotencyKey, 100) }, tx, cancellationToken: ct));
 
         Authorizations.Add(1, new KeyValuePair<string, object?>("result", status),
                               new KeyValuePair<string, object?>("reason", declineReason ?? "none"));
@@ -154,7 +154,7 @@ public sealed class AuthorizationHandler(SqlConnection connection, NetworkClient
             SELECT request_hash AS RequestHash, status_code AS StatusCode, response_body AS ResponseBody
               FROM idempotency_keys WHERE idempotency_key = @Key
             """,
-            new { Key = key }, cancellationToken: ct));
+            new { Key = Ansi(key, 100) }, cancellationToken: ct));
 
         if (row is null || row.StatusCode is null)
             return Results.Problem(statusCode: StatusCodes.Status409Conflict,
@@ -166,6 +166,10 @@ public sealed class AuthorizationHandler(SqlConnection connection, NetworkClient
 
         return Results.Text(row.ResponseBody!, "application/json", Encoding.UTF8, row.StatusCode.Value);
     }
+
+    // Parâmetros para colunas VARCHAR: evita conversão implícita, varredura e deadlock.
+    private static DbString Ansi(string value, int length) =>
+        new() { Value = value, IsAnsi = true, Length = length };
 
     private sealed record CardRow(long AccountId, string Status);
     private sealed record AuthRow(Guid AuthorizationId, DateTime CreatedAt);
